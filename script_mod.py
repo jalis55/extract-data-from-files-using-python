@@ -1,9 +1,7 @@
 import numpy as np
 import pandas as pd
 import json
-import csv
-data_file = open("data_file.txt","a")#append 
-new_word=open("new word.txt","a")
+data_file = open("data_file.txt","a",encoding="utf-8")#append
 
 sentences=[]
 with open('salida_tweets.txt') as file:
@@ -11,9 +9,12 @@ with open('salida_tweets.txt') as file:
         line=json.loads(line)
         if "delete" not in line.keys():
             sentences.append(line["text"])
-word_data = pd.read_csv('Sentimientos.txt',sep="\t")
+word_data = pd.read_csv('Sentimientos.txt',sep="\t",encoding="utf-8")
+
 word_data=np.array(word_data)
 sentence_rank=[]
+new_word=[]
+new_word_lst=[]
 
 for sen in sentences:
     rank=0
@@ -22,14 +23,17 @@ for sen in sentences:
         if word[0] in sen_lst:
             sen_lst.remove(word[0])
             rank = rank + int(word[1])
-    data_file.write(sen+":"+str(rank)+"\n")
-    for wrd in sen_lst:
-        np.append(word_data,[wrd,rank])
-        new_word.write(wrd+"\t"+str(rank))
-    sentence_rank.append([sen,rank])
-for i in word_data:
-    print(i)
 
-# for sen_rank in sentence_rank:
-#     print(sen_rank[0]+":"+str(sen_rank[1]))
-# data_file.close()
+    for wrd in sen_lst:
+        if wrd not in new_word:
+            new_word.append(wrd)
+            new_word_lst.append([wrd, rank])
+    sentence_rank.append([sen,rank])
+    data_file.write(sen + ":" + str(rank) + "\n")
+for ranks in sentence_rank:
+    print(ranks)
+
+add_to_file=open('Sentimientos.txt','a',encoding="utf-8")
+for i in new_word_lst:
+    add_to_file.write(i[0]+" "+str(i[1])+"\n")
+add_to_file.close()
